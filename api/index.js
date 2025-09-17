@@ -7,9 +7,9 @@ const port = 3000;
 const helmet = require("helmet");
 const apiRouter = require("./routes/api");
 
-// Autoriser le front à accéder à l'API
+app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173", // ton front
+  origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 

@@ -100,5 +100,34 @@ module.exports = {
             console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
         }
+    },
+    login: async (req, res) => {
+        try {
+            console.log('Body reçu :', req.body); // <--- log
+            const { username, password } = req.body;
+            if (!username || !password) {
+                return res.status(400).json({ error: "username et password requis" });
+            }
+
+            const user = await db("users")
+                .where({ username, password }) // <--- vérifie que les colonnes existent
+                .first();
+
+            console.log('Utilisateur trouvé :', user); // <--- log
+
+            if (!user) {
+                return res.status(401).json({ error: "Identifiants incorrects" });
+            }
+
+            res.json({
+                id: user.id,
+                username: user.username,
+                online_status: user.online_status,
+                theme: user.theme,
+            });
+        } catch (err) {
+            console.error(err); // <--- log complet de l'erreur
+            res.status(500).json({ error: "Erreur serveur" });
+        }
     }
 };
