@@ -1,10 +1,19 @@
 require("dotenv").config();
 
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = 3000;
 const helmet = require("helmet");
 const apiRouter = require("./routes/api");
+
+// Autoriser le front à accéder à l'API
+app.use(cors({
+  origin: "http://localhost:5173", // ton front
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
+
+
 
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
