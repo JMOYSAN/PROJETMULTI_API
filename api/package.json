@@ -1,0 +1,24 @@
+{
+	"name": "api_multiplateforme",
+	"version": "1.0.0",
+	"description": "API pour l'application multiplateforme",
+	"main": "index.js",
+	"author": "Joaquim Moysan, Lyam Bathalon, François Santerre",
+	"scripts": {
+		"start": "nodemon index.js",
+		"up": "docker compose up -d --build",
+		"down": "docker compose down",
+		"logs": "docker compose logs -f",
+		"migrate": "knex migrate:latest"
+	},
+	"dependencies": {
+		"dotenv": "^17.2.2",
+		"express": "^5.1.0",
+		"helmet": "^8.1.0",
+		"knex": "^3.1.0",
+		"make": "^0.8.1"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.10"
+	}
+}
