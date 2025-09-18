@@ -60,8 +60,10 @@ module.exports = {
             if (rows === 0) {
                 return res.status(404).json({ error: "Utilisateur non trouvé" });
             }
-
-            res.json({ msg: `Utilisateur ${req.params.id} mis à jour` });
+            const updatedUser = await db("users")
+                .where({ id: req.params.id })
+                .first();
+            res.json(updatedUser);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
@@ -103,17 +105,17 @@ module.exports = {
     },
     login: async (req, res) => {
         try {
-            console.log('Body reçu :', req.body); // <--- log
+            console.log('Body reçu :', req.body);
             const { username, password } = req.body;
             if (!username || !password) {
                 return res.status(400).json({ error: "username et password requis" });
             }
 
             const user = await db("users")
-                .where({ username, password }) // <--- vérifie que les colonnes existent
+                .where({ username, password })
                 .first();
 
-            console.log('Utilisateur trouvé :', user); // <--- log
+            console.log('Utilisateur trouvé :', user);
 
             if (!user) {
                 return res.status(401).json({ error: "Identifiants incorrects" });
@@ -126,8 +128,42 @@ module.exports = {
                 theme: user.theme,
             });
         } catch (err) {
-            console.error(err); // <--- log complet de l'erreur
+            console.error(err);
+            res.status(500).json({ error: "Erreur serveur" });
+        }
+    },
+    register: async (req, res) => {
+        try {
+            const { username, password } = req.body;
+
+            if (!username || !password) {
+                return res.status(400).json({ error: "Username et password obligatoires" });
+            }
+
+            const existingUser = await db("users").where({ username }).first();
+            if (existingUser) {
+                return res.status(409).json({ error: "Nom d'utilisateur déjà pris" });
+            }
+
+            const [id] = await db("users").insert({
+                username,
+                password,
+                theme: "dark",
+                online_status: "online",
+            });
+
+            const newUser = await db("users").where({ id }).first();
+
+            res.status(201).json({
+                id: newUser.id,
+                username: newUser.username,
+                theme: "dark",
+                online_status: "online",
+            });
+        } catch (err) {
+            console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
         }
     }
+
 };
