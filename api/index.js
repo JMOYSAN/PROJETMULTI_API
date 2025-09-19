@@ -6,7 +6,21 @@ const app = express();
 const port = 3000;
 const helmet = require("helmet");
 const apiRouter = require("./routes/api");
+// INTEGRATION REDIS
+const Redis = require("ioredis");
+const sub = new Redis();
+const pub = new Redis();
 
+sub.subscribe("chat");
+
+sub.on("message", (channel, message) => {
+    console.log(`Received message from ${channel}: ${message}`);
+});
+
+function onClientMessage(channel, message) {
+    console.log(`Client received message from ${channel}: ${message}`);
+}
+// INTEGRATION REDIS
 app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173",
