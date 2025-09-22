@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const apiController = require("../controllers/ApiController");
-const loggingMiddleware = require("../middleware/Logging,js");
+const loggingMiddleware = require("../middleware/Logging.js");
 router.use(loggingMiddleware);
 router
   .route("/")
