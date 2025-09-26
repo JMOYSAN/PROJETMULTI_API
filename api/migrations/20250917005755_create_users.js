@@ -3,7 +3,6 @@
  * @returns { Promise<void> }
  */
 exports.up = async function (knex) {
-    // Création de la table
     await knex.schema.createTable('users', (table) => {
         table.increments('id').primary();
         table.string('username').notNullable();
@@ -13,7 +12,7 @@ exports.up = async function (knex) {
         table.timestamps(true, true);
     });
 
-    // Insertion de 100 utilisateurs
+
     const users = [];
     for (let i = 1; i <= 100; i++) {
         users.push({

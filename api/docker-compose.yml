@@ -3,10 +3,10 @@ version: "3.9"
 services:
   api:
     build: .
-    command: npm start                     # runs nodemon index.js from package.json
+    command: npm start                     # lance ton app Node
     volumes:
-      - .:/app                             # mount your code into the container
-      - /app/node_modules                  # keep node_modules in the container
+      - .:/app                             # ton code
+      - /app/node_modules                  # garde node_modules dans le conteneur
     ports:
       - "3000:3000"
     environment:
@@ -14,11 +14,25 @@ services:
     depends_on:
       - mysql
 
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
   mysql:
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: mydb
+      MYSQL_ROOT_HOST: "%"   # autoriser connexion root depuis l’extérieur
+    command: --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # pour garder les données même si tu stop
+
+volumes:
+  redis_data:
+  mysql_data:
