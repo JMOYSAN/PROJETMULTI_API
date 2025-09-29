@@ -105,6 +105,7 @@ module.exports = {
     },
     login: async (req, res) => {
         try {
+            console.log('Req: ', req);
             console.log('Body reçu :', req.body);
             const { username, password } = req.body;
             if (!username || !password) {
