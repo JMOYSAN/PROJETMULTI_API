@@ -1,4 +1,20 @@
+
 const knex = require("../db");
+
+exports.show = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const assoc = await knex("groups_users").where({ id }).first();
+        if (!assoc) {
+            return res.status(404).json({ error: "Association non trouvée" });
+        }
+        res.json(assoc);
+    } catch (err) {
+        console.error("Erreur show groups_users:", err);
+        res.status(500).json({ error: "Erreur lors de la récupération" });
+    }
+};
+
 
 // Lister toutes les associations (user ↔ groupe)
 exports.index = async (req, res) => {
