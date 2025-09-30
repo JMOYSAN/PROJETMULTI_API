@@ -8,6 +8,9 @@ router.use(loggingMiddleware);
 router.post("/", groupUsersController.store);
 router.delete("/", groupUsersController.destroy);
 router.get("/", groupUsersController.index);
+router.get("/group/:groupId", groupUsersController.groupMembers);
+
 router.get("/:id", groupUsersController.show);
+
 
 module.exports = router;
