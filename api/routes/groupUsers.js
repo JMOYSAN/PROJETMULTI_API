@@ -6,5 +6,6 @@ router.use(loggingMiddleware);
 
 router.post("/", groupUsersController.store);
 router.delete("/", groupUsersController.destroy);
+router.get("/", groupUsersController.index);
 
 module.exports = router;

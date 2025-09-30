@@ -37,7 +37,7 @@ app.use("/api", apiRouter);
 app.use("/users", require("./routes/users"));
 app.use("/groups", require("./routes/groups"));
 //app.use("/messages", require("./routes/messages"));
-//app.use("/group-users", require("./routes/groupUsers"));
+app.use("/groups-users", require("./routes/groupUsers"));
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Listening at http://localhost:${port}`);
