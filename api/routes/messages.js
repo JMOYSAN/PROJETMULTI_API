@@ -8,5 +8,5 @@ router.get("/", messagesController.index);
 router.post("/", messagesController.store);
 router.get("/:id", messagesController.show);
 router.delete("/:id", messagesController.destroy);
-
+router.get("/group/:groupId", messagesController.groupMessages);
 module.exports = router;
