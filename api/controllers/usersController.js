@@ -3,7 +3,7 @@ const db = require("../db");
 module.exports = {
     index: async (req, res) => {
         try {
-            const users = await db("users").select("*").limit(40);
+            const users = await db("users").select("*").limit(25);
             res.json(users);
         } catch (err) {
             console.error(err);

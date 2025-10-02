@@ -90,24 +90,29 @@ module.exports = {
     // Crée un groupe
     store: async (req, res) => {
         try {
-            const { name, description, is_private} = req.body;
-
+            const { name, is_private } = req.body;
             if (!name) {
-                return res.status(400).json({ error: "Le nom est obligatoire" });
+                return res.status(400).json({ error: "Le champ name est requis" });
+            }
+
+            const existing = await db("groups").where({ name }).first();
+            if (existing) {
+                return res.status(409).json({ error: "Ce nom de groupe existe déjà" });
             }
 
             const [id] = await db("groups").insert({
                 name,
-                description: description || "",
-                is_private: is_private ? 1 : 0,
+                is_private: !!is_private,
             });
 
-            res.status(201).json({ id, name, description, is_public, owner_id });
+            const group = await db("groups").where({ id }).first();
+            res.status(201).json(group);
         } catch (err) {
-            console.error(err);
+            console.error("Erreur création groupe:", err);
             res.status(500).json({ error: "Erreur serveur" });
         }
     },
+
 
     // Met à jour un groupe
     update: async (req, res) => {

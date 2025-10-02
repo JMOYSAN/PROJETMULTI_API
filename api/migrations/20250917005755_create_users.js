@@ -14,7 +14,7 @@ exports.up = async function (knex) {
 
 
     const users = [];
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 400; i++) {
         users.push({
             username: `user${i}`,
             password: `mdpUser${i}`,
