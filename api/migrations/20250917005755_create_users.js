@@ -7,6 +7,7 @@ exports.up = async function (knex) {
         table.increments('id').primary();
         table.string('username').notNullable();
         table.string('password').notNullable();
+        table.string('role');
         table.enum('theme', ['dark', 'light']).notNullable().defaultTo('light');
         table.enum('online_status', ['online', 'offline', 'away']).notNullable().defaultTo('offline');
         table.timestamps(true, true);
@@ -14,7 +15,16 @@ exports.up = async function (knex) {
 
 
     const users = [];
-    for (let i = 1; i <= 400; i++) {
+    for (let i = 2; i <= 400; i++) {
+        users.push({
+            username: `user1`,
+            password: `mdpUser1`,
+            theme: i % 2 === 1 ? 'light' : 'dark',
+            role: 'admin',
+            online_status: i % 2 === 1 ? 'online' : 'offline',
+            created_at: new Date(),
+            updated_at: new Date()
+        });
         users.push({
             username: `user${i}`,
             password: `mdpUser${i}`,

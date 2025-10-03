@@ -127,6 +127,7 @@ module.exports = {
                 username: user.username,
                 online_status: user.online_status,
                 theme: user.theme,
+                role: user.role
             });
         } catch (err) {
             console.error(err);

@@ -5,6 +5,13 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 const helmet = require("helmet");
+
+app.use(cors({
+  origin: ['http://localhost:3002', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
+
 const apiRouter = require("./routes/api");
 /*
 // INTEGRATION REDIS
@@ -24,10 +31,6 @@ function onClientMessage(channel, message) {
  */
 // INTEGRATION REDIS
 app.use(express.json());
-app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-}));
 
 
 
