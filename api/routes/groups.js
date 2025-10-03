@@ -6,9 +6,9 @@ router.use(loggingMiddleware);
 
 router.get("/", groupsController.index);
 
-router.get("/user/:userId", groupsController.userGroupsIndex);
+router.get("/private/:userId", groupsController.privateGroupsIndex);
 
-router.get("/public/:userId", groupsController.publicGroupsIndex);
+router.get("/public", groupsController.publicGroupsIndex);
 
 router.get("/next/:type/:lastId", groupsController.nextGroups);
 

@@ -4,7 +4,7 @@ module.exports = {
     // Liste tous les groupes (limite 20)
     index: async (req, res) => {
         try {
-            const groups = await db("groups").select("*").limit(20);
+            const groups = await db("groups").select("*").limit(100);
             res.json(groups);
         } catch (err) {
             console.error(err);
@@ -12,13 +12,14 @@ module.exports = {
         }
     },
 
-    // Groupes d'un utilisateur (limite 20)
-    userGroupsIndex: async (req, res) => {
+    // Groupes privé (limite 20)
+    privateGroupsIndex: async (req, res) => {
         try {
             const { userId } = req.params;
             const groups = await db("groups")
-                .join("user_groups", "groups.id", "user_groups.group_id")
-                .where("user_groups.user_id", userId)
+                .join("groups_users", "groups.id", "groups_users.group_id")
+                .where("groups.is_private", 1)
+                .andWhere("groups_users.user_id", userId)
                 .select("groups.*")
                 .limit(20);
 
@@ -32,12 +33,8 @@ module.exports = {
     // Groupes publics auxquels l'utilisateur n'appartient pas (limite 20)
     publicGroupsIndex: async (req, res) => {
         try {
-            const { userId } = req.params;
             const groups = await db("groups")
                 .where("is_private", 0)
-                .whereNotIn("id", function () {
-                    this.select("group_id").from("user_groups").where("user_id", userId);
-                })
                 .limit(20);
 
             res.json(groups);
