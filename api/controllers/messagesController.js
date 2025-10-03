@@ -1,17 +1,31 @@
 const knex = require("../db");
 
-// Liste tous les messages
+
 exports.index = async (req, res) => {
+    const { lastCreatedAt, limit = 20, groupId } = req.query;
+
     try {
-        const messages = await knex("messages")
+        const query = knex("messages")
             .select("id", "user_id", "group_id", "content", "created_at")
-            .orderBy("created_at", "asc");
+            .orderBy("created_at", "asc")
+            .limit(limit);
+
+        if (lastCreatedAt) {
+            query.where("created_at", ">", new Date(lastCreatedAt)); // only newer messages
+        }
+
+        if (groupId) {
+            query.andWhere("group_id", groupId); // filter by group if provided
+        }
+
+        const messages = await query;
         res.json(messages);
     } catch (err) {
         console.error("Erreur index messages:", err);
         res.status(500).json({ error: "Erreur lors de la récupération des messages" });
     }
 };
+
 
 // Récupérer un message par ID
 exports.show = async (req, res) => {
