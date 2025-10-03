@@ -15,6 +15,21 @@ exports.up = function (knex) {
         table.timestamp('created_at').defaultTo(knex.fn.now());
     });
 };
+// Tous les messages d’un groupe
+exports.groupMessages = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const messages = await knex("messages")
+            .where("group_id", groupId)
+            .select("id", "user_id", "group_id", "content", "created_at")
+            .orderBy("created_at", "asc");
+
+        res.json(messages);
+    } catch (err) {
+        console.error("Erreur groupMessages:", err);
+        res.status(500).json({ error: "Erreur lors de la récupération des messages du groupe" });
+    }
+};
 
 /**
  * @param { import("knex").Knex } knex
