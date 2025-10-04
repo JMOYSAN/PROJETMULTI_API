@@ -5,7 +5,15 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 const helmet = require("helmet");
+
+app.use(cors({
+  origin: ['http://localhost:3002', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
+
 const apiRouter = require("./routes/api");
+/*
 // INTEGRATION REDIS
 const Redis = require("ioredis");
 const sub = new Redis();
@@ -20,22 +28,20 @@ sub.on("message", (channel, message) => {
 function onClientMessage(channel, message) {
     console.log(`Client received message from ${channel}: ${message}`);
 }
+ */
 // INTEGRATION REDIS
 app.use(express.json());
-app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-}));
 
 
 
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", apiRouter);
+app.use("/search", require("./routes/search"));
 app.use("/users", require("./routes/users"));
-//app.use("/groups", require("./routes/groups"));
-//app.use("/messages", require("./routes/messages"));
-//app.use("/group-users", require("./routes/groupUsers"));
+app.use("/groups", require("./routes/groups"));
+app.use("/messages", require("./routes/messages"));
+app.use("/groups-users", require("./routes/groupUsers"));
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Listening at http://localhost:${port}`);

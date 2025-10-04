@@ -1,9 +1,10 @@
 const db = require("../db");
 
 module.exports = {
+    // Liste tous les groupes (limite 20)
     index: async (req, res) => {
         try {
-            const groups = await db("groups").select("*").limit(40);
+            const groups = await db("groups").select("*").limit(100);
             res.json(groups);
         } catch (err) {
             console.error(err);
@@ -11,27 +12,71 @@ module.exports = {
         }
     },
 
-    store: async (req, res) => {
+    // Groupes privé (limite 20)
+    privateGroupsIndex: async (req, res) => {
         try {
-            const { name, is_private } = req.body;
-            if (!name) return res.status(400).json({ error: "Le nom du groupe est obligatoire" });
+            const { userId } = req.params;
+            const groups = await db("groups")
+                .join("groups_users", "groups.id", "groups_users.group_id")
+                .where("groups.is_private", 1)
+                .andWhere("groups_users.user_id", userId)
+                .select("groups.*")
+                .limit(20);
 
-            const existingGroup = await db("groups").where({ name }).first();
-            if (existingGroup) return res.status(409).json({ error: "Nom de groupe déjà utilisé" });
-
-            const [id] = await db("groups").insert({ name, is_private: is_private || false });
-            const newGroup = await db("groups").where({ id }).first();
-            res.status(201).json(newGroup);
+            res.json(groups);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
         }
     },
 
+    // Groupes publics auxquels l'utilisateur n'appartient pas (limite 20)
+    publicGroupsIndex: async (req, res) => {
+        try {
+            const groups = await db("groups")
+                .where("is_private", 0)
+                .limit(20);
+
+            res.json(groups);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Erreur serveur" });
+        }
+    },
+
+    // Lazy loading (20 par batch)
+    nextGroups: async (req, res) => {
+        const lastId = parseInt(req.params.lastId, 10);
+        const type = req.params.type;
+
+        if (isNaN(lastId)) {
+            return res.status(400).json({ error: "ID invalide" });
+        }
+
+        try {
+            let query;
+            if (type === "private") {
+                query = db("groups").where("id", ">", lastId).orderBy("id", "asc").where("is_private", 1).limit(20);
+            } else if (type === "public") {
+                query = db("groups").where("id", ">", lastId).orderBy("id", "asc").where("is_private", 0).limit(20);
+            }
+
+            const groups = await query;
+            res.json(groups);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Erreur serveur" });
+        }
+    },
+    
     show: async (req, res) => {
         try {
             const group = await db("groups").where({ id: req.params.id }).first();
-            if (!group) return res.status(404).json({ error: "Groupe non trouvé" });
+
+            if (!group) {
+                return res.status(404).json({ error: "Groupe non trouvé" });
+            }
+
             res.json(group);
         } catch (err) {
             console.error(err);
@@ -39,103 +84,66 @@ module.exports = {
         }
     },
 
-    update: async (req, res) => {
+    // Crée un groupe
+    store: async (req, res) => {
         try {
             const { name, is_private } = req.body;
-            const rows = await db("groups").where({ id: req.params.id }).update({ name, is_private });
-            if (rows === 0) return res.status(404).json({ error: "Groupe non trouvé" });
-            const updatedGroup = await db("groups").where({ id: req.params.id }).first();
-            res.json(updatedGroup);
+            if (!name) {
+                return res.status(400).json({ error: "Le champ name est requis" });
+            }
+
+            const existing = await db("groups").where({ name }).first();
+            if (existing) {
+                return res.status(409).json({ error: "Ce nom de groupe existe déjà" });
+            }
+
+            const [id] = await db("groups").insert({
+                name,
+                is_private: !!is_private,
+            });
+
+            const group = await db("groups").where({ id }).first();
+            res.status(201).json(group);
+        } catch (err) {
+            console.error("Erreur création groupe:", err);
+            res.status(500).json({ error: "Erreur serveur" });
+        }
+    },
+
+
+    // Met à jour un groupe
+    update: async (req, res) => {
+        try {
+            const { name, description, is_private } = req.body;
+
+            const rows = await db("groups")
+                .where({ id: req.params.id })
+                .update({ name, description, is_private});
+
+            if (rows === 0) {
+                return res.status(404).json({ error: "Groupe non trouvé" });
+            }
+
+            res.json({ msg: `Groupe ${req.params.id} mis à jour` });
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
         }
     },
 
+    // Supprime un groupe
     destroy: async (req, res) => {
         try {
             const rows = await db("groups").where({ id: req.params.id }).del();
-            if (rows === 0) return res.status(404).json({ error: "Groupe non trouvé" });
+
+            if (rows === 0) {
+                return res.status(404).json({ error: "Groupe non trouvé" });
+            }
+
             res.json({ msg: `Groupe ${req.params.id} supprimé` });
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "Erreur serveur" });
         }
     },
-
-    userGroupsIndex: async (req, res) => {
-        const userId = parseInt(req.params.userId, 10);
-        if (isNaN(userId)) return res.status(400).json({ error: "User ID invalide" });
-
-        try {
-            const groups = await db("groups")
-                .join("user_groups", "groups.id", "user_groups.group_id")
-                .where("user_groups.user_id", userId)
-                .select("groups.*")
-                .limit(20);
-            res.json(groups);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Erreur serveur" });
-        }
-    },
-
-    publicGroupsIndex: async (req, res) => {
-        const userId = parseInt(req.params.userId, 10);
-        if (isNaN(userId)) return res.status(400).json({ error: "User ID invalide" });
-
-        try {
-            const groups = await db("groups")
-                .where("is_private", false)
-                .andWhereNotIn("id", function() {
-                    this.select("group_id").from("user_groups").where("user_id", userId);
-                })
-                .limit(20);
-            res.json(groups);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Erreur serveur" });
-        }
-    },
-
-    userGroupsLazy: async (req, res) => {
-        const userId = parseInt(req.params.userId, 10);
-        const startId = parseInt(req.query.startId, 10) || 0;
-        if (isNaN(userId)) return res.status(400).json({ error: "User ID invalide" });
-
-        try {
-            const groups = await db("groups")
-                .join("user_groups", "groups.id", "user_groups.group_id")
-                .where("user_groups.user_id", userId)
-                .andWhere("groups.id", ">", startId)
-                .orderBy("groups.id", "asc")
-                .limit(20)
-                .select("groups.*");
-            res.json(groups);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Erreur serveur" });
-        }
-    },
-
-    publicGroupsLazy: async (req, res) => {
-        const userId = parseInt(req.params.userId, 10);
-        const startId = parseInt(req.query.startId, 10) || 0;
-        if (isNaN(userId)) return res.status(400).json({ error: "User ID invalide" });
-
-        try {
-            const groups = await db("groups")
-                .where("is_private", false)
-                .andWhereNotIn("id", function() {
-                    this.select("group_id").from("user_groups").where("user_id", userId);
-                })
-                .andWhere("id", ">", startId)
-                .orderBy("id", "asc")
-                .limit(20);
-            res.json(groups);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Erreur serveur" });
-        }
-    }
 };

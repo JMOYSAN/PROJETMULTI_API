@@ -3,7 +3,7 @@ const db = require("../db");
 module.exports = {
     index: async (req, res) => {
         try {
-            const users = await db("users").select("*").limit(40);
+            const users = await db("users").select("*").limit(25);
             res.json(users);
         } catch (err) {
             console.error(err);
@@ -105,6 +105,7 @@ module.exports = {
     },
     login: async (req, res) => {
         try {
+            console.log('Req: ', req);
             console.log('Body reçu :', req.body);
             const { username, password } = req.body;
             if (!username || !password) {
@@ -126,6 +127,7 @@ module.exports = {
                 username: user.username,
                 online_status: user.online_status,
                 theme: user.theme,
+                role: user.role
             });
         } catch (err) {
             console.error(err);
