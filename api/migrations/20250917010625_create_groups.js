@@ -12,7 +12,6 @@ exports.up = async function (knex) {
 
     const now = new Date();
 
-    // 30 publics
     const publicGroups = Array.from({ length: 30 }, (_, i) => ({
         name: `PublicGroup${i + 1}`,
         is_private: false,
@@ -20,7 +19,6 @@ exports.up = async function (knex) {
         updated_at: now,
     }));
 
-    // 30 privés
     const privateGroups = Array.from({ length: 30 }, (_, i) => ({
         name: `PrivateGroup${i + 1}`,
         is_private: true,

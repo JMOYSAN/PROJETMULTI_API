@@ -1,7 +1,6 @@
 const db = require("../db");
 
 module.exports = {
-    // Liste tous les groupes (limite 20)
     index: async (req, res) => {
         try {
             const groups = await db("groups").select("*").limit(100);
@@ -12,7 +11,6 @@ module.exports = {
         }
     },
 
-    // Groupes privé (limite 20)
     privateGroupsIndex: async (req, res) => {
         try {
             const { userId } = req.params;
@@ -30,7 +28,6 @@ module.exports = {
         }
     },
 
-    // Groupes publics auxquels l'utilisateur n'appartient pas (limite 20)
     publicGroupsIndex: async (req, res) => {
         try {
             const groups = await db("groups")
