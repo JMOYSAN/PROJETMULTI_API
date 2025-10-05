@@ -8,14 +8,14 @@ exports.index = async (req, res) => {
         const query = knex("messages")
             .select("id", "user_id", "group_id", "content", "created_at")
             .orderBy("created_at", "asc")
-            .limit(limit);
+            .limit(parseInt(limit));
 
         if (lastCreatedAt) {
-            query.where("created_at", ">", new Date(lastCreatedAt)); // only newer messages
+            query.where("created_at", ">", new Date(lastCreatedAt));
         }
 
         if (groupId) {
-            query.andWhere("group_id", groupId); // filter by group if provided
+            query.andWhere("group_id", groupId);
         }
 
         const messages = await query;
@@ -26,8 +26,6 @@ exports.index = async (req, res) => {
     }
 };
 
-
-// Récupérer un message par ID
 exports.show = async (req, res) => {
     try {
         const { id } = req.params;
@@ -42,7 +40,6 @@ exports.show = async (req, res) => {
     }
 };
 
-// Créer un message
 exports.store = async (req, res) => {
     try {
         const { content, user_id, group_id } = req.body;
@@ -72,7 +69,6 @@ exports.store = async (req, res) => {
     }
 };
 
-// Supprimer un message
 exports.destroy = async (req, res) => {
     try {
         const { id } = req.params;
@@ -87,18 +83,40 @@ exports.destroy = async (req, res) => {
     }
 };
 
-// Tous les messages d’un groupe
 exports.groupMessages = async (req, res) => {
     try {
         const { groupId } = req.params;
         const messages = await knex("messages")
             .where("group_id", groupId)
             .select("id", "user_id", "group_id", "content", "created_at")
-            .orderBy("created_at", "asc");
+            .orderBy("id", "asc");
 
         res.json(messages);
     } catch (err) {
         console.error("Erreur groupMessages:", err);
         res.status(500).json({ error: "Erreur lors de la récupération des messages du groupe" });
+    }
+};
+
+exports.lazyLoadMessages = async (req, res) => {
+    const { groupId } = req.params;
+    const { beforeId, limit = 20 } = req.query;
+
+    try {
+        const query = knex("messages")
+            .where("group_id", groupId)
+            .select("id", "user_id", "group_id", "content", "created_at")
+            .orderBy("id", "desc")
+            .limit(parseInt(limit));
+
+        if (beforeId) {
+            query.where("id", "<", parseInt(beforeId));
+        }
+
+        const messages = await query;
+        res.json(messages);
+    } catch (err) {
+        console.error("Erreur lazyLoadMessages:", err);
+        res.status(500).json({ error: "Erreur lors du lazy loading des messages" });
     }
 };

@@ -15,16 +15,17 @@ exports.up = async function (knex) {
 
 
     const users = [];
-    for (let i = 2; i <= 400; i++) {
-        users.push({
-            username: `user1`,
-            password: `mdpUser1`,
-            theme: i % 2 === 1 ? 'light' : 'dark',
-            role: 'admin',
-            online_status: i % 2 === 1 ? 'online' : 'offline',
-            created_at: new Date(),
-            updated_at: new Date()
-        });
+    users.push({
+        username: `user1`,
+        password: `mdpUser1`,
+        theme: 1 % 2 === 1 ? 'light' : 'dark',
+        role: 'admin',
+        online_status: 1 % 2 === 1 ? 'online' : 'offline',
+        created_at: new Date(),
+        updated_at: new Date()
+    });
+    for (let i = 2; i <= 100; i++) {
+
         users.push({
             username: `user${i}`,
             password: `mdpUser${i}`,
