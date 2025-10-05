@@ -1,4 +1,5 @@
 const knex = require("../db");
+const { publisher } = require("../redis");
 
 exports.index = async (req, res) => {
     const { lastCreatedAt, limit = 20, groupId } = req.query;
@@ -54,6 +55,13 @@ exports.store = async (req, res) => {
         });
 
         const message = await knex("messages").where({ id }).first();
+
+        // broadcast via Redis
+        await publisher.publish("chat_messages", JSON.stringify({
+            type: "message",
+            ...message,
+        }));
+
         res.status(201).json(message);
     } catch (err) {
         console.error("Erreur store message:", err);
