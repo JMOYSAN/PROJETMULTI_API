@@ -10,7 +10,6 @@ module.exports = {
             res.status(500).json({ error: "Erreur serveur" });
         }
     },
-
     store: async (req, res) => {
         try {
             const { username, password, theme, status, isadmin } = req.body;
@@ -121,11 +120,14 @@ module.exports = {
             if (!user) {
                 return res.status(401).json({ error: "Identifiants incorrects" });
             }
+            await db("users")
+                .where({ id: user.id })
+                .update({ online_status: 'online' });
 
             res.json({
                 id: user.id,
                 username: user.username,
-                online_status: user.online_status,
+                online_status: 'online',
                 theme: user.theme,
                 role: user.role
             });
