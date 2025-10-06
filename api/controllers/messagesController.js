@@ -57,10 +57,17 @@ exports.store = async (req, res) => {
         const message = await knex("messages").where({ id }).first();
 
         // broadcast via Redis
-        await publisher.publish("chat_messages", JSON.stringify({
-            type: "message",
-            ...message,
-        }));
+        await publisher.publish(
+            "chat_messages",
+            JSON.stringify({
+                type: "message",
+                id: message.id,
+                user_id: message.user_id,
+                group_id: message.group_id,   // ensure exact key name
+                content: message.content,
+                created_at: message.created_at,
+            })
+        );
 
         res.status(201).json(message);
     } catch (err) {

@@ -26,7 +26,8 @@ async function setupWebSocket(server) {
     });
 
     // Subscribe safely
-    subscriber.subscribe("chat_messages", (raw) => {
+    await subscriber.subscribe("chat_messages", (raw) => {
+        console.log("[Redis] received:", raw);   // debug
         const data = JSON.parse(raw);
         for (const ws of clients.values()) {
             if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(data));
