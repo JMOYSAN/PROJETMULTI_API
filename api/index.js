@@ -29,10 +29,8 @@ app.use("/groups", require("./routes/groups"));
 app.use("/messages", require("./routes/messages"));
 app.use("/groups-users", require("./routes/groupUsers"));
 
-// Create HTTP server to attach WebSocket
 const server = http.createServer(app);
 
-// Initialize Redis + WebSocket
 setupWebSocket(server);
 
 server.listen(port, "0.0.0.0", () => {
