@@ -4,6 +4,7 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const setupWebSocket = require("./webSocket");
 
 const app = express();
@@ -14,13 +15,24 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 
-
 const apiRouter = require("./routes/api");
 app.use(express.json());
 
-
-
 app.use(helmet());
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1000,
+    message: {
+        success: false,
+        error: "Trop de requêtes envoyées. Réessayez plus tard."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use(limiter);
+
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", apiRouter);
 app.use("/search", require("./routes/search"));
