@@ -1,4 +1,7 @@
 const db = require("../db");
+const bcrypt = require("bcrypt");
+
+const SALT_ROUNDS = 10;
 
 module.exports = {
     index: async (req, res) => {
@@ -18,9 +21,11 @@ module.exports = {
                 return res.status(400).json({ error: "Username et password obligatoires" });
             }
 
+            const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
             const [id] = await db("users").insert({
                 username,
-                password,
+                password: hashedPassword,
                 theme: theme || "default",
                 status: status || "offline",
                 isadmin: isadmin || 0
@@ -52,9 +57,15 @@ module.exports = {
         try {
             const { username, password, theme, status, isadmin } = req.body;
 
+            const updateData = { username, theme, status, isadmin };
+
+            if (password) {
+                updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
+            }
+
             const rows = await db("users")
                 .where({ id: req.params.id })
-                .update({ username, password, theme, status, isadmin });
+                .update(updateData);
 
             if (rows === 0) {
                 return res.status(404).json({ error: "Utilisateur non trouvé" });
@@ -107,12 +118,13 @@ module.exports = {
             console.log('Req: ', req);
             console.log('Body reçu :', req.body);
             const { username, password } = req.body;
+
             if (!username || !password) {
                 return res.status(400).json({ error: "username et password requis" });
             }
 
             const user = await db("users")
-                .where({ username, password })
+                .where({ username })
                 .first();
 
             console.log('Utilisateur trouvé :', user);
@@ -120,6 +132,13 @@ module.exports = {
             if (!user) {
                 return res.status(401).json({ error: "Identifiants incorrects" });
             }
+
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordValid) {
+                return res.status(401).json({ error: "Identifiants incorrects" });
+            }
+
             await db("users")
                 .where({ id: user.id })
                 .update({ online_status: 'online' });
@@ -149,9 +168,11 @@ module.exports = {
                 return res.status(409).json({ error: "Nom d'utilisateur déjà pris" });
             }
 
+            const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
             const [id] = await db("users").insert({
                 username,
-                password,
+                password: hashedPassword,
                 theme: "dark",
                 online_status: "online",
             });
