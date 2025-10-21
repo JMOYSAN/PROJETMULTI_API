@@ -1,3 +1,7 @@
+const bcrypt = require("bcrypt");
+
+const SALT_ROUNDS = 10;
+
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -13,22 +17,24 @@ exports.up = async function (knex) {
         table.timestamps(true, true);
     });
 
-
     const users = [];
+
+    const hashedPassword1 = await bcrypt.hash('mdpUser1', SALT_ROUNDS);
     users.push({
-        username: `user1`,
-        password: `mdpUser1`,
-        theme: 1 % 2 === 1 ? 'light' : 'dark',
+        username: 'user1',
+        password: hashedPassword1,
+        theme: 'light',
         role: 'admin',
-        online_status: 1 % 2 === 1 ? 'online' : 'offline',
+        online_status: 'online',
         created_at: new Date(),
         updated_at: new Date()
     });
-    for (let i = 2; i <= 100; i++) {
 
+    for (let i = 2; i <= 100; i++) {
+        const hashedPassword = await bcrypt.hash(`mdpUser${i}`, SALT_ROUNDS);
         users.push({
             username: `user${i}`,
-            password: `mdpUser${i}`,
+            password: hashedPassword,
             theme: i % 2 === 1 ? 'light' : 'dark',
             online_status: i % 2 === 1 ? 'online' : 'offline',
             created_at: new Date(),
