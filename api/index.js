@@ -20,7 +20,7 @@ app.use(cors({
 
 const apiRouter = require("./routes/api");
 app.use(express.json());
-
+app.use(cookieParser());
 app.use(helmet());
 
 const limiter = rateLimit({
