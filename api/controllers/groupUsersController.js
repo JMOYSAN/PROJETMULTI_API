@@ -60,7 +60,7 @@ exports.store = async (req, res) => {
 // Supprimer un user d’un groupe
 exports.destroy = async (req, res) => {
     try {
-        const { userId, groupId } = req.params;
+            const { userId, groupId } = req.body;
 
         const count = await knex("groups_users")
             .where({ user_id: userId, group_id: groupId })

@@ -10,8 +10,10 @@
 		"up": "docker compose up -d",
 		"down": "docker compose down",
 		"logs": "docker compose logs -f",
-		"migrate": "docker exec -it api-api-1 npx knex migrate:latest"
-	},
+		"migrate": "docker exec -it api-api-1 npx knex migrate:latest",
+      "reset": "docker exec -it api-api-1 npx knex migrate:rollback --all && docker exec -it api-api-1 npx knex migrate:latest"
+
+    },
 	"dependencies": {
 		"bcrypt": "^6.0.0",
 		"cookie-parser": "^1.4.7",
