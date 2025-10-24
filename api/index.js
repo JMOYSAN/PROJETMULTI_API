@@ -4,24 +4,42 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const cookieParser = require("cookie-parser");
 const setupWebSocket = require("./webSocket");
+const { verifyAccessToken } = require("./middleware/authMiddleware");
 
 const app = express();
 const port = 3000;
 
 app.use(cors({
-  origin: ['http://localhost:3002', 'http://localhost:5173', 'http://localhost:5174'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
-
 
 const apiRouter = require("./routes/api");
 app.use(express.json());
-
-
-
+app.use(cookieParser());
 app.use(helmet());
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100000,
+    message: {
+        success: false,
+        error: "Trop de requêtes envoyées. Réessayez plus tard."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use(limiter);
+
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/auth", require("./routes/auth"));
+app.use(verifyAccessToken);
 app.use("/api", apiRouter);
 app.use("/search", require("./routes/search"));
 app.use("/users", require("./routes/users"));
