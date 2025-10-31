@@ -6,7 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
-const setupWebSocket = require("./webSocket");
+const setupWebSocket = require("./websocket");
 const { verifyAccessToken } = require("./middleware/authMiddleware");
 
 const app = express();
