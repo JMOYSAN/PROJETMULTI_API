@@ -16,7 +16,7 @@ const allowedOrigins = [
     "http://localhost:5173",
     "https://bobberchat.com"
 ];
-
+app.use(cookieParser());
 app.use(
     cors({
         origin: (origin, callback) => {
@@ -33,7 +33,7 @@ app.use(
 
 const apiRouter = require("./routes/api");
 app.use(express.json());
-app.use(cookieParser());
+
 app.use(helmet());
 
 const limiter = rateLimit({
