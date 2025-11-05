@@ -38,6 +38,14 @@ app.use(limiter);
 
 app.use(express.urlencoded({ extended: true }));
 
+app.get("/health", (req, res) => {
+    res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV
+    });
+})
+
 app.use("/auth", require("./routes/auth"));
 app.use(verifyAccessToken);
 app.use("/api", apiRouter);
