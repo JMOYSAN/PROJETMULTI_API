@@ -11,8 +11,10 @@ services:
     environment:
       NODE_ENV: development
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   redis:
     image: redis:7
