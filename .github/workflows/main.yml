@@ -37,5 +37,5 @@ jobs:
       - name: Post-deployment checks
         run: |
           echo "Vérification HTTP..."
-          curl -f -I http://bobberchat.com/health | grep "200 OK" || exit 1
+          curl -f -I http://bobberchat.com/api/health | grep "200 OK" || exit 1
   
