@@ -16,25 +16,21 @@ const allowedOrigins = [
     "http://localhost:5173",
     "https://bobberchat.com"
 ];
-app.use(cookieParser());
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE"]
-    })
-);
+app.use(cookieParser())
+
+app.use(cors({
+    origin: ["http://localhost:5173", "https://bobberchat.com"],
+    credentials: true,
+}))
+
+app.use(express.json())
 
 const apiRouter = require("./routes/api");
 app.use(express.json());
 
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -61,12 +57,13 @@ app.get("/health", (req, res) => {
 
 app.use("/auth", require("./routes/auth"));
 app.use(verifyAccessToken);
+
+app.use("/api/search", require("./routes/search"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/groups", require("./routes/groups"));
+app.use("/api/messages", require("./routes/messages"));
+app.use("/api/groups-users", require("./routes/groupUsers"));
 app.use("/api", apiRouter);
-app.use("/search", require("./routes/search"));
-app.use("/users", require("./routes/users"));
-app.use("/groups", require("./routes/groups"));
-app.use("/messages", require("./routes/messages"));
-app.use("/groups-users", require("./routes/groupUsers"));
 
 const server = http.createServer(app);
 
