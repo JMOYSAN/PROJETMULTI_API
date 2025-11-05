@@ -12,11 +12,24 @@ const { verifyAccessToken } = require("./middleware/authMiddleware");
 const app = express();
 const port = 3000;
 
-app.use(cors({
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://bobberchat.com"
+];
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE"]
+    })
+);
 
 const apiRouter = require("./routes/api");
 app.use(express.json());
