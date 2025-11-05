@@ -25,7 +25,7 @@ jobs:
       - name: Deploy to DigitalOcean server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
-            cd /path/to/api
+            cd /root/PROJETMULTI_API/api
             git fetch --all
             git reset --hard origin/${GITHUB_REF_NAME#refs/heads/}
             docker compose down
