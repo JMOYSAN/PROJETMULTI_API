@@ -28,10 +28,10 @@ jobs:
             cd /root/PROJETMULTI_API/api
             git fetch --all
             git reset --hard origin/${GITHUB_REF_NAME#refs/heads/}
-            docker compose down
-            docker compose build
-            docker compose up -d
-            docker exec -it api-api-1 npx knex migrate:latest
+            docker-compose down
+            docker-compose build
+            docker-compose up -d
+            docker-exec -it api-api-1 npx knex migrate:latest
           EOF
 
       - name: Post-deployment checks
