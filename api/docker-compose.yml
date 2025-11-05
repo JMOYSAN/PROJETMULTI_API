@@ -2,7 +2,7 @@
 services:
   api:
     build: .
-    command: npm start                     # lance ton app Node
+    command: sh -c "./wait-for-it.sh mysql:3306 -- npm start"                  # lance ton app Node
     volumes:
       - .:/app                             # ton code
       - /app/node_modules                  # garde node_modules dans le conteneur
