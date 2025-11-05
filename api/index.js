@@ -55,15 +55,14 @@ app.get("/health", (req, res) => {
     });
 })
 
-app.use("/auth", require("./routes/auth"));
-app.use(verifyAccessToken);
-
+app.use("/auth", require("./routes/auth"));     // stays at /auth/*
+app.use(verifyAccessToken);                     // everything below requires JWT
+app.use("/api", apiRouter);                     // keep
 app.use("/api/search", require("./routes/search"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/groups", require("./routes/groups"));
 app.use("/api/messages", require("./routes/messages"));
 app.use("/api/groups-users", require("./routes/groupUsers"));
-app.use("/api", apiRouter);
 
 const server = http.createServer(app);
 
