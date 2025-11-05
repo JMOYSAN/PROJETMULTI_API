@@ -38,7 +38,7 @@ app.use(limiter);
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
     res.json({
         status: "ok",
         timestamp: new Date().toISOString(),
