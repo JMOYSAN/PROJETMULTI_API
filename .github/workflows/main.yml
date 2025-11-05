@@ -1,0 +1,39 @@
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - release/*
+
+jobs:
+  deploy:
+    name: Deploy API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to DigitalOcean server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
+            cd /path/to/api
+            git fetch --all
+            git reset --hard origin/${GITHUB_REF_NAME#refs/heads/}
+            docker compose down
+            docker compose build
+            docker compose up -d
+            docker exec -it api-api-1 npx knex migrate:latest
+          EOF
+
+      - name: Post-deployment checks
+        run: |
+          curl -f -I https://bobberchat.com/ | grep "200 OK" || exit 1
