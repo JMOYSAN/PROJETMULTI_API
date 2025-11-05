@@ -29,7 +29,8 @@ jobs:
             docker-compose down
             docker-compose build
             docker-compose up -d
-            docker exec api_api_1 npx knex migrate:latest
+            docker-compose ps
+            docker exec api-api-1 npx knex migrate:latest
           EOF
 
 
