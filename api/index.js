@@ -10,6 +10,7 @@ const setupWebSocket = require("./websocket");
 const { verifyAccessToken } = require("./middleware/authMiddleware");
 
 const app = express();
+app.set('trust proxy', 1)  // ✅ Required behind nginx
 const port = 3000;
 
 const allowedOrigins = [

@@ -193,10 +193,10 @@ module.exports = {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                path: "/"
-            });
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                path: "/",
+            })
 
             const { password: _, ...userWithoutPassword } = user;
             res.json({
