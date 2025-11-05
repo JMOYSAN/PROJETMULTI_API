@@ -1,0 +1,41 @@
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - release/*
+
+jobs:
+  deploy:
+    name: Deploy API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to DigitalOcean server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
+            cd /root/PROJETMULTI_API/api || exit 1
+            git fetch origin main
+            git checkout -f main
+            git reset --hard origin/main
+            docker-compose down
+            docker-compose build
+            docker-compose up -d
+            docker-compose ps
+            docker exec api-api-1 npx knex migrate:latest
+          EOF
+
+
+      - name: Post-deployment checks
+        run: |
+          echo "Vérification HTTP..."
+          curl -f -I http://bobberchat.com/health | grep "200 OK" || exit 1
+  

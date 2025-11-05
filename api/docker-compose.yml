@@ -13,17 +13,20 @@ services:
       - api
   api:
     build: .
-    command: npm start
+    command: npm start                # lance ton app Node
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app                             # ton code
+      - /app/node_modules                  # garde node_modules dans le conteneur
+    container_name: api-api-1
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: development
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   redis:
     image: redis:7
@@ -41,11 +44,17 @@ services:
       MYSQL_DATABASE: mydb
       MYSQL_ROOT_HOST: "%"   # autoriser connexion root depuis l’extérieur
     command: --default-authentication-plugin=mysql_native_password
+    container_name: api-mysql-1
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql  # pour garder les données même si tu stop
-
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 volumes:
   redis_data:
   mysql_data:
