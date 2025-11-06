@@ -55,9 +55,8 @@ module.exports = {
 
     update: async (req, res) => {
         try {
-            const { username, password, theme, status, isadmin } = req.body;
-
-            const updateData = { username, theme, status, isadmin };
+            const { username, password, theme, status, isadmin, online_status } = req.body;
+            const updateData = { username, theme, status, isadmin, online_status };
 
             if (password) {
                 updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
