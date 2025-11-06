@@ -66,52 +66,6 @@ module.exports = {
         }
     },
 
-    addUserToGroup: async (req, res) => {
-        const { groupId, userId } = req.params
-
-        try {
-            await db("group_users").insert({
-                group_id: groupId,
-                user_id: userId
-            })
-
-            res.json({ success: true })
-        } catch (err) {
-            console.error(err)
-            res.status(500).json({ error: "Impossible d'ajouter l'utilisateur au groupe" })
-        }
-    },
-
-    getGroupMembers: async (req, res) => {
-        const { groupId } = req.params
-        try {
-            const members = await db("group_users")
-                .join("users", "group_users.user_id", "users.id")
-                .where("group_users.group_id", groupId)
-                .select("users.id", "users.username", "users.theme")
-
-            res.json(members)
-        } catch (err) {
-            console.error(err)
-            res.status(500).json({ error: "Impossible d'obtenir les membres du groupe" })
-        }
-    },
-
-    fetchNextGroups: async (req, res) => {
-        const { offset } = req.params
-        const limit = 10
-        try {
-            const groups = await db("groups")
-                .offset(offset)
-                .limit(limit)
-
-            res.json(groups)
-        } catch (err) {
-            console.error(err)
-            res.status(500).json({ error: "Erreur chargement groupes" })
-        }
-    },
-
     show: async (req, res) => {
         try {
             const group = await db("groups").where({ id: req.params.id }).first();

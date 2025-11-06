@@ -10,55 +10,49 @@ const setupWebSocket = require("./websocket");
 const { verifyAccessToken } = require("./middleware/authMiddleware");
 
 const app = express();
-app.set('trust proxy', 1)  // ✅ Required behind nginx
 const port = 3000;
 
-const allowedOrigins = [
-    "http://localhost:5173",
-    "https://bobberchat.com"
-];
-app.use(cookieParser())
+app.set("trust proxy", 1); // ✅ Required behind nginx reverse proxy
 
 app.use(cors({
-    origin: ["http://localhost:5173", "https://bobberchat.com"],
+    origin: ["https://bobberchat.com", "http://localhost:5173"],
     credentials: true,
-}))
+}));
 
-app.use(express.json())
-
-const apiRouter = require("./routes/api");
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100000,
-    message: {
-        success: false,
-        error: "Trop de requêtes envoyées. Réessayez plus tard."
-    },
+    message: { error: "Trop de requêtes. Réessayez plus tard." },
     standardHeaders: true,
     legacyHeaders: false,
 });
 
 app.use(limiter);
-
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Public route for health check
 app.get("/health", (req, res) => {
     res.json({
         status: "ok",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV
     });
-})
+});
 
-app.use("/auth", require("./routes/auth"));     // stays at /auth/*
-app.use(verifyAccessToken);                     // everything below requires JWT
-app.use("/api", apiRouter);                     // keep
+// ✅ Public auth routes (no JWT)
+app.use("/auth", require("./routes/auth"));
+
+// ✅ Every route below needs a valid token
+app.use(verifyAccessToken);
+
+// ✅ Protected API namespace
 app.use("/api/search", require("./routes/search"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/groups", require("./routes/groups"));
@@ -66,9 +60,8 @@ app.use("/api/messages", require("./routes/messages"));
 app.use("/api/groups-users", require("./routes/groupUsers"));
 
 const server = http.createServer(app);
-
 setupWebSocket(server);
 
-server.listen(port, "0.0.0.0", () => {
-    console.log(`Server and WebSocket running at http://localhost:${port}`);
-});
+server.listen(port, "0.0.0.0", () =>
+    console.log(`Server + WS running on port ${port}`)
+);
