@@ -17,10 +17,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'api/package-lock.json'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd api
+          npm ci
 
       - name: Run ESLint
-        run: npm run lint
+        run: |
+          cd api
+          npm run lint
