@@ -36,7 +36,7 @@ exports.up = async function (knex) {
             username: `user${i}`,
             password: hashedPassword,
             theme: i % 2 === 1 ? 'light' : 'dark',
-            online_status: i % 2 === 1 ? 'online' : 'offline',
+            online_status:'offline',
             created_at: new Date(),
             updated_at: new Date()
         });
