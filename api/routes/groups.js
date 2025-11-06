@@ -10,7 +10,7 @@ router.get("/page/:offset", groupsController.fetchNextGroups)
 
 router.get("/:groupId/members", groupsController.getGroupMembers)
 router.post("/:groupId/users/:userId", groupsController.addUserToGroup)
-
+router.get("/next/:type/:lastId", groupsController.nextGroups);
 router.post("/", groupsController.store)
 router.get("/:id", groupsController.show)
 router.put("/:id", groupsController.update)
