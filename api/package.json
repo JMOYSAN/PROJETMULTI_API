@@ -5,15 +5,16 @@
 	"main": "index.js",
 	"author": "Joaquim Moysan, Lyam Bathalon, François Santerre",
 	"scripts": {
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
 		"start": "nodemon index.js",
 		"restart": "docker compose down && docker compose build && docker compose up -d && docker exec -it api-api-1 npx knex migrate:latest",
 		"up": "docker compose up -d",
 		"down": "docker compose down",
 		"logs": "docker compose logs -f",
 		"migrate": "docker exec -it api-api-1 npx knex migrate:latest",
-      "reset": "docker exec -it api-api-1 npx knex migrate:rollback --all && docker exec -it api-api-1 npx knex migrate:latest"
-
-    },
+		"reset": "docker exec -it api-api-1 npx knex migrate:rollback --all && docker exec -it api-api-1 npx knex migrate:latest"
+	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
 		"cookie-parser": "^1.4.7",
@@ -30,6 +31,9 @@
 		"ws": "^8.18.3"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.39.1",
+		"eslint": "^9.39.1",
+		"globals": "^16.5.0",
 		"knex": "^3.1.0",
 		"nodemon": "^3.1.10"
 	}
