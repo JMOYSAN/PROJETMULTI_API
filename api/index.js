@@ -51,6 +51,9 @@ app.get("/health", (req, res) => {
 // ✅ Public auth routes (no JWT)
 app.use("/auth", require("./routes/auth"));
 
+// ✅ E2EE public routes (key registration / fetch)
+app.use("/e2ee", require("./routes/e2ee"));
+
 // ✅ Every route below needs a valid token
 app.use(verifyAccessToken);
 
