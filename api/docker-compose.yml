@@ -39,7 +39,7 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: 47fc01b0-39ab-4475-a0c6-7b2f6689f2d9
       MYSQL_DATABASE: mydb
       MYSQL_ROOT_HOST: "%"   # autoriser connexion root depuis l’extérieur
     command: --default-authentication-plugin=mysql_native_password
