@@ -12,7 +12,7 @@ const { verifyAccessToken } = require("./middleware/authMiddleware");
 const app = express();
 const port = 3000;
 
-app.set("trust proxy", 1); // ✅ Required behind nginx reverse proxy
+app.set("trust proxy", 1);
 
 app.use(cors({
     origin: ["https://bobberchat.com", "http://localhost:5173"],
@@ -39,7 +39,6 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Public route for health check
 app.get("/health", (req, res) => {
     res.json({
         status: "ok",
@@ -48,13 +47,10 @@ app.get("/health", (req, res) => {
     });
 });
 
-// ✅ Public auth routes (no JWT)
 app.use("/auth", require("./routes/auth"));
 
-// ✅ Every route below needs a valid token
 app.use(verifyAccessToken);
 
-// ✅ Protected API namespace
 app.use("/api/search", require("./routes/search"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/groups", require("./routes/groups"));

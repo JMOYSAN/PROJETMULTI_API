@@ -21,6 +21,8 @@ const generateRefreshToken = (user) =>
 module.exports = {
     register: async (req, res) => {
         try {
+            console.log("BODY RECU:", req.body);
+
             const { username, password } = req.body;
             if (!username || !password)
                 return res.status(400).json({ error: "Champs requis" });
@@ -41,18 +43,12 @@ module.exports = {
     login: async (req, res) => {
         try {
             const { username, password } = req.body;
-            console.log("1. Tentative de login pour:", username);
-            console.log("2. Mot de passe reçu:", password);
+
 
             const user = await db("users").where({ username }).first();
             if (!user) return res.status(401).json({ error: "Identifiants invalides" });
 
-            console.log("3. User trouvé:", user.username);
-            console.log("4. Hash stocké en DB:", user.password);
-            console.log("5. Longueur du hash:", user.password?.length);
-
             const match = await bcrypt.compare(password, user.password);
-            console.log("6. Résultat de la comparaison:", match);
 
             if (!match) return res.status(401).json({ error: "Mot de passe incorrect" });
 

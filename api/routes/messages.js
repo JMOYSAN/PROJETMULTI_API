@@ -2,19 +2,46 @@ const express = require("express");
 const router = express.Router();
 const messagesController = require("../controllers/messagesController");
 const loggingMiddleware = require("../middleware/Logging.js");
+const { validateBody, validateParams, validateQuery } = require("../validators/middleware");
+const schemas = require("../validators/schemas");
 
 router.use(loggingMiddleware);
 
-// Routes spécifiques EN PREMIER
-router.get('/group/:groupId/lazy', messagesController.lazyLoadMessages);
-router.get("/group/:groupId", messagesController.groupMessages);
+router.get(
+    '/group/:groupId/lazy',
+    validateParams(schemas.group.idParam.keys({ groupId: schemas.group.idParam.extract('id') })),
+    validateQuery(schemas.message.lazyLoadQuery),
+    messagesController.lazyLoadMessages
+);
 
-// Routes générales
-router.get("/", messagesController.index);
-router.post("/", messagesController.store);
+router.get(
+    "/group/:groupId",
+    validateParams(schemas.group.idParam.keys({ groupId: schemas.group.idParam.extract('id') })),
+    messagesController.groupMessages
+);
 
-// Routes avec :id EN DERNIER
-router.get("/:id", messagesController.show);
-router.delete("/:id", messagesController.destroy);
+router.get(
+    "/",
+    validateQuery(schemas.message.query),
+    messagesController.index
+);
+
+router.post(
+    "/",
+    validateBody(schemas.message.create),
+    messagesController.store
+);
+
+router.get(
+    "/:id",
+    validateParams(schemas.group.idParam),
+    messagesController.show
+);
+
+router.delete(
+    "/:id",
+    validateParams(schemas.group.idParam),
+    messagesController.destroy
+);
 
 module.exports = router;
