@@ -8,6 +8,8 @@ const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 const setupWebSocket = require("./websocket");
 const { verifyAccessToken } = require("./middleware/authMiddleware");
+const requestLogger = require("./middleware/requestLogger")
+const { logger } = require("./utils/logger");
 
 const app = express();
 const port = 3000;
@@ -21,6 +23,8 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(requestLogger);
 
 app.use(helmet({
     contentSecurityPolicy: {
@@ -72,9 +76,34 @@ app.use("/api/groups", require("./routes/groups"));
 app.use("/api/messages", require("./routes/messages"));
 app.use("/api/groups-users", require("./routes/groupUsers"));
 
+app.use((err, req, res, next) => {
+    logger.error('Unhandled error', {
+        error: err.message,
+        stack: err.stack,
+        url: req.originalUrl,
+        method: req.method,
+        userId: req.user?.id
+    });
+
+    res.status(500).json({ error: "Erreur serveur" });
+});
+
 const server = http.createServer(app);
 setupWebSocket(server);
 
-server.listen(port, "0.0.0.0", () =>
-    console.log(`Server + WS running on port ${port}`)
-);
+server.listen(port, "0.0.0.0", () => {
+    logger.info(`Server + WS running on port ${port}`, {
+        port,
+        environment: process.env.NODE_ENV,
+        nodeVersion: process.version
+    });
+});
+
+process.on('uncaughtException', (err) => {
+    logger.error('Uncaught Exception', { error: err.message, stack: err.stack });
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection', { reason, promise });
+});
