@@ -19,18 +19,33 @@ app.use(cors({
     credentials: true,
 }));
 
-app.set("trust proxy", true)
-
 app.use(express.json());
 app.use(cookieParser());
 
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", "wss://bobberchat.com", "ws://localhost:*"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            fontSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            upgradeInsecureRequests: [],
+        },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
 }));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100000,
+    limit: 1000,
     message: { error: "Trop de requêtes. Réessayez plus tard." },
     standardHeaders: true,
     legacyHeaders: false,
